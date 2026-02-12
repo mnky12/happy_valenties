@@ -1,0 +1,404 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #000;
+  color: #f5f5f5;
+  overflow: hidden;
+}
+
+/* Game layout */
+
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+  transition: opacity 0.5s ease;
+}
+
+#game.fade-out {
+  opacity: 0;
+}
+
+#game.fade-in {
+  opacity: 1;
+}
+
+#background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at top,
+      rgba(0, 0, 0, 0.4),
+      transparent 40%
+    ),
+    linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 55%);
+  pointer-events: none;
+}
+
+#ui {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2.5rem clamp(1.5rem, 4vw, 3.5rem);
+  gap: 1rem;
+}
+
+/* Toast message (верх по центру) */
+
+#toast {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(255, 241, 242, 0.95);
+  color: #9f1239;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 28px rgba(24, 24, 27, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Thought popup (мысли героини) */
+
+#thought-popup {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#thought-popup.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#thought-popup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.45), transparent);
+}
+
+#thought-popup::after {
+  /* just to ensure pseudo doesn't cover text; actual content is inside via JS */
+  content: "";
+}
+
+#thought-popup > div {
+  position: relative;
+  max-width: 520px;
+  background: linear-gradient(
+    to bottom right,
+    rgba(254, 242, 242, 0.98),
+    rgba(255, 228, 230, 0.98)
+  );
+  color: #9f1239;
+  border-radius: 1.5rem;
+  padding: 1.4rem 1.6rem;
+  box-shadow:
+    0 24px 60px rgba(24, 24, 27, 0.75),
+    0 0 0 1px rgba(251, 113, 133, 0.4);
+  z-index: 1;
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+/* Chapter label */
+
+#chapter-label {
+  align-self: flex-start;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.65);
+}
+
+/* Text box */
+
+#text-box {
+  background: linear-gradient(
+    to top right,
+    rgba(15, 23, 42, 0.96),
+    rgba(15, 23, 42, 0.92)
+  );
+  border-radius: 1.25rem;
+  padding: 1.35rem 1.6rem;
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.95),
+    0 0 0 1px rgba(148, 163, 184, 0.35);
+  max-width: 860px;
+  width: 100%;
+  backdrop-filter: blur(14px);
+}
+
+#text-content {
+  min-height: 4.5rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #e5e7eb;
+  position: relative;
+  white-space: pre-line; 
+}
+
+#text-content::after {
+  content: "";
+  position: absolute;
+  right: -0.75rem;
+  bottom: -0.1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #818cf8;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#text-content.typing-done::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Objects (interactive items) */
+
+#objects-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+  max-width: 860px;
+}
+
+.object-button {
+  position: relative;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.92);
+  color: #e5e7eb;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.12s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.85);
+}
+
+.object-button:hover {
+  background: rgba(30, 64, 175, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(30, 64, 175, 0.85);
+  border-color: rgba(191, 219, 254, 0.9);
+}
+
+.object-button.visited {
+  background: rgba(22, 163, 74, 0.16);
+  border-color: rgba(74, 222, 128, 0.85);
+  color: #bbf7d0;
+}
+
+/* Choices / buttons */
+
+#choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  max-width: 860px;
+}
+
+.choice-button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: linear-gradient(
+    135deg,
+    rgba(251, 207, 232, 0.98),
+    rgba(244, 114, 182, 0.98)
+  );
+  color: #311524;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 14px 35px rgba(190, 24, 93, 0.55),
+    0 0 0 1px rgba(251, 207, 232, 0.9);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease,
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+.choice-button:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow:
+    0 20px 45px rgba(190, 24, 93, 0.7),
+    0 0 0 1px rgba(251, 182, 206, 0.95);
+  filter: brightness(1.06);
+}
+
+.choice-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 10px 28px rgba(190, 24, 93, 0.8),
+    0 0 0 1px rgba(251, 207, 232, 0.95);
+}
+
+.choice-button.secondary {
+  background: linear-gradient(
+    135deg,
+    rgba(254, 242, 242, 0.96),
+    rgba(254, 226, 226, 0.96)
+  );
+  color: #7f1d1d;
+  box-shadow:
+    0 12px 28px rgba(120, 53, 69, 0.5),
+    0 0 0 1px rgba(254, 202, 202, 0.9);
+}
+
+.choice-button.secondary:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    rgba(254, 226, 226, 0.98),
+    rgba(252, 231, 243, 0.98)
+  );
+  box-shadow:
+    0 18px 40px rgba(190, 24, 93, 0.65),
+    0 0 0 1px rgba(254, 202, 202, 0.95);
+}
+
+.choice-button.disabled-logic {
+  background: rgba(15, 23, 42, 0.85);
+  color: rgba(148, 163, 184, 0.75);
+  box-shadow:
+    0 6px 16px rgba(15, 23, 42, 0.9),
+    0 0 0 1px rgba(55, 65, 81, 0.9);
+  cursor: default;
+}
+
+.choice-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: translateY(0);
+  box-shadow:
+    0 6px 16px rgba(15, 23, 42, 0.9),
+    0 0 0 1px rgba(55, 65, 81, 0.9);
+}
+
+/* Small helper text (conditions) */
+
+.choice-button[data-hint]::after {
+  content: attr(data-hint);
+  position: absolute;
+  left: 50%;
+  bottom: -1.2rem;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.9);
+  opacity: 0;
+  transition: opacity 0.2s ease, bottom 0.2s ease;
+  pointer-events: none;
+}
+
+.choice-button.disabled-logic[data-hint]::after {
+  opacity: 1;
+  bottom: -1.4rem;
+}
+
+/* Typing state */
+
+#text-content.typing {
+  opacity: 0.9;
+}
+
+/* Basic responsiveness */
+
+@media (max-width: 800px) {
+  #ui {
+    padding: 1.5rem 1.25rem 1.75rem;
+  }
+
+  #text-box {
+    padding: 1rem 1.15rem;
+  }
+
+  #choices {
+    flex-direction: column;
+  }
+
+  .choice-button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-height: 620px) {
+  #ui {
+    padding-bottom: 1.2rem;
+  }
+
+  #text-box {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+}
+
